@@ -9,23 +9,29 @@ namespace WebXRInputProfile
   {
     public InputProfileModel inputProfileModel;
     public InputProfileLoader inputProfileLoader;
-    public InputField profileName;
+    public InputField profileNameInput;
     public Button loadNone;
     public Button loadLeft;
     public Button loadRight;
     public Slider[] buttonsSliders;
     public Slider[] axesSliders;
+    public Slider[] rotationsSliders;
+    private string lastDownloadedProfile;
 
     public void LoadProfile()
     {
-      inputProfileLoader.LoadProfile(profileName.text, OnProfileLoaded);
+      lastDownloadedProfile = this.profileNameInput.text;
+      loadNone.interactable = false;
+      loadLeft.interactable = false;
+      loadRight.interactable = false;
+      inputProfileLoader.LoadProfile(lastDownloadedProfile, OnProfileLoaded);
     }
 
     private void OnProfileLoaded(bool success)
     {
-      loadNone.interactable = success;
-      loadLeft.interactable = success;
-      loadRight.interactable = success;
+      loadNone.interactable = inputProfileLoader.HasModelForHand(lastDownloadedProfile, InputProfileLoader.Handedness.none);
+      loadLeft.interactable = inputProfileLoader.HasModelForHand(lastDownloadedProfile, InputProfileLoader.Handedness.left);
+      loadRight.interactable = inputProfileLoader.HasModelForHand(lastDownloadedProfile, InputProfileLoader.Handedness.right);
     }
 
     public void LoadNone()
@@ -49,7 +55,16 @@ namespace WebXRInputProfile
       {
         Destroy(inputProfileModel.gameObject);
       }
-      inputProfileModel = inputProfileLoader.LoadModelForHand(handedness);
+      inputProfileModel = inputProfileLoader.LoadModelForHand(lastDownloadedProfile, handedness);
+      UpdateModelRotations();
+      for (int i = 0; i < buttonsSliders.Length; i++)
+      {
+        SetButtonValue(i);
+      }
+      for (int i = 0; i < axesSliders.Length; i++)
+      {
+        SetAxisValue(i);
+      }
     }
 
     public void SetButtonValue(int index)
@@ -68,5 +83,14 @@ namespace WebXRInputProfile
       }
     }
 
+    public void UpdateModelRotations()
+    {
+      if (inputProfileModel)
+      {
+        inputProfileModel.transform.localEulerAngles = new Vector3(rotationsSliders[0].value,
+                                                                  rotationsSliders[1].value,
+                                                                  rotationsSliders[2].value);
+      }
+    }
   }
 }

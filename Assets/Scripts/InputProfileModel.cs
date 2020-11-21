@@ -1,24 +1,24 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using GLTFast;
 
 namespace WebXRInputProfile
 {
   public class InputProfileModel : MonoBehaviour
   {
+    private System.Action<bool> onLoadCallback;
     private float[] buttons = new float[7];
     private float[] axes = new float[4];
 
     private LayoutRouting layoutRouting;
 
-    public LayoutTransforms layoutTransforms;
+    private LayoutTransforms layoutTransforms;
 
     private GltfAsset gltfAsset;
 
-    public void Init(LayoutRouting layoutRouting, string url)
+    public void Init(LayoutRouting layoutRouting, string url, System.Action<bool> callback = null)
     {
       this.layoutRouting = layoutRouting;
+      onLoadCallback = callback;
       if (gltfAsset == null)
       {
         gltfAsset = gameObject.AddComponent<GLTFast.GltfAsset>();
@@ -32,6 +32,11 @@ namespace WebXRInputProfile
     private void OnGltfLoaded(GltfAssetBase assetBase, bool success)
     {
       gltfAsset.onLoadComplete -= OnGltfLoaded;
+      if (!success)
+      {
+        onLoadCallback?.Invoke(false);
+        return;
+      }
       var _transform = transform;
       if (layoutRouting != null)
       {
@@ -44,6 +49,7 @@ namespace WebXRInputProfile
             layoutTransforms.buttons[i].valueNode = TransformFindRecursive(_transform, layoutRouting.buttons[i].valueNodeName);
             layoutTransforms.buttons[i].minNode = TransformFindRecursive(_transform, layoutRouting.buttons[i].minNodeName);
             layoutTransforms.buttons[i].maxNode = TransformFindRecursive(_transform, layoutRouting.buttons[i].maxNodeName);
+            SetButtonValue(i, buttons[i]);
           }
         }
         for (int i = 0; i < layoutRouting.axes.Length; i++)
@@ -52,10 +58,25 @@ namespace WebXRInputProfile
           {
             layoutTransforms.axes[i] = new LayoutTransform();
             layoutTransforms.axes[i].valueNode = TransformFindRecursive(_transform, layoutRouting.axes[i].valueNodeName);
-            layoutTransforms.axes[i].minNode = TransformFindRecursive(_transform, layoutRouting.axes[i].minNodeName);
-            layoutTransforms.axes[i].maxNode = TransformFindRecursive(_transform, layoutRouting.axes[i].maxNodeName);
+            // In WebXR, yAxis is inverted. Not sure if here's the place to switch
+            if (layoutRouting.axes[i].componentProperty == ComponentPropertyTypes.yAxis)
+            {
+              layoutTransforms.axes[i].minNode = TransformFindRecursive(_transform, layoutRouting.axes[i].maxNodeName);
+              layoutTransforms.axes[i].maxNode = TransformFindRecursive(_transform, layoutRouting.axes[i].minNodeName);
+            }
+            else
+            {
+              layoutTransforms.axes[i].minNode = TransformFindRecursive(_transform, layoutRouting.axes[i].minNodeName);
+              layoutTransforms.axes[i].maxNode = TransformFindRecursive(_transform, layoutRouting.axes[i].maxNodeName);
+            }
+            SetAxisValue(i, Mathf.Lerp(-1f, 1f, axes[i]));
           }
         }
+        onLoadCallback?.Invoke(true);
+      }
+      else
+      {
+        onLoadCallback?.Invoke(false);
       }
     }
 
@@ -85,15 +106,14 @@ namespace WebXRInputProfile
         return false;
       }
       buttons[index] = Mathf.Clamp01(value);
-      if (layoutTransforms.buttons[index] == null
+      if (layoutTransforms == null
+          || layoutTransforms.buttons[index] == null
           || layoutTransforms.buttons[index].valueNode == null
           || layoutTransforms.buttons[index].minNode == null
           || layoutTransforms.buttons[index].maxNode == null)
       {
-        Debug.LogError ("No button");
         return false;
       }
-      //layoutTransforms.buttons[index].valueNode.localPosition
       var position = Vector3.Lerp(layoutTransforms.buttons[index].minNode.localPosition,
                                   layoutTransforms.buttons[index].maxNode.localPosition,
                                   buttons[index]);
@@ -114,12 +134,12 @@ namespace WebXRInputProfile
       }
       axes[index] = Mathf.Clamp(value, -1f, 1f);
       axes[index] = Mathf.InverseLerp(-1f, 1f, axes[index]);
-      if (layoutTransforms.axes[index] == null
+      if (layoutTransforms == null
+          || layoutTransforms.axes[index] == null
           || layoutTransforms.axes[index].valueNode == null
           || layoutTransforms.axes[index].minNode == null
           || layoutTransforms.axes[index].maxNode == null)
       {
-        Debug.LogError ("No axis");
         return false;
       }
       var position = Vector3.Lerp(layoutTransforms.axes[index].minNode.localPosition,
