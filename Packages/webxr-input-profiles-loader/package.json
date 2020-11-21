@@ -1,0 +1,28 @@
+{
+  "name": "com.de-panther.webxr-input-profiles-loader",
+  "displayName": "WebXR Input Profiles Loader",
+  "version": "0.1.0",
+  "unity": "2019.4",
+  "description": "Load WebXR Input Profiles in Unity",
+  "keywords": [
+    "webxr",
+    "xr",
+    "ar",
+    "vr"
+  ],
+  "author": {
+    "name": "De-Panther",
+    "url": "https://github.com/De-Panther/webxr-input-profiles-loader"
+  },
+  "samples": [
+    {
+      "displayName": "Sample Viewer Scene",
+      "description": "Sample Scene with Input Profiles Viewer",
+      "path": "Samples~/SampleViewer"
+    }
+  ],
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "2.0.0",
+    "com.atteneder.gltfast": "2.2.0"
+  }
+}

@@ -9,6 +9,15 @@
       },
       "url": "https://package.openupm.com"
     },
+    "com.de-panther.webxr-input-profiles-loader": {
+      "version": "file:webxr-input-profiles-loader",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "2.0.0",
+        "com.atteneder.gltfast": "2.2.0"
+      }
+    },
     "com.unity.collab-proxy": {
       "version": "1.2.16",
       "depth": 0,

@@ -1,0 +1,15 @@
+{
+    "name": "WebXRInputProfile.Viewer",
+    "references": [
+        "GUID:84a2d09f0bb073f40922f5ea5362abe7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
