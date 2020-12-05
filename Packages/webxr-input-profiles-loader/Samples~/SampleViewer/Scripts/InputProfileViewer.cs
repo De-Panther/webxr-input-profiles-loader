@@ -9,7 +9,8 @@ namespace WebXRInputProfile.Viewer
   {
     public InputProfileModel inputProfileModel;
     public InputProfileLoader inputProfileLoader;
-    public InputField profileNameInput;
+    public Dropdown profileNameDropdown;
+    public Button loadProfile;
     public Button loadNone;
     public Button loadLeft;
     public Button loadRight;
@@ -18,13 +19,42 @@ namespace WebXRInputProfile.Viewer
     public Slider[] rotationsSliders;
     private string lastDownloadedProfile;
 
+    void Start()
+    {
+      profileNameDropdown.ClearOptions();
+      if (InputProfileLoader.ProfilesPaths == null || InputProfileLoader.ProfilesPaths.Count == 0)
+      {
+
+        inputProfileLoader.LoadProfilesList(HandleProfilesList);
+      }
+      else
+      {
+        HandleProfilesList(InputProfileLoader.ProfilesPaths);
+      }
+    }
+
+    void HandleProfilesList(Dictionary<string,string> profilesList)
+    {
+      if (profilesList == null || profilesList.Count == 0)
+      {
+        return;
+      }
+      List<string> profileNames = new List<string>();
+      foreach (var keyValPair in profilesList)
+      {
+        profileNames.Add(keyValPair.Key);
+      }
+      profileNameDropdown.AddOptions(profileNames);
+      loadProfile.interactable = true;
+    }
+
     public void LoadProfile()
     {
-      lastDownloadedProfile = this.profileNameInput.text;
+      lastDownloadedProfile = profileNameDropdown.options[profileNameDropdown.value].text;
       loadNone.interactable = false;
       loadLeft.interactable = false;
       loadRight.interactable = false;
-      inputProfileLoader.LoadProfile(lastDownloadedProfile, OnProfileLoaded);
+      inputProfileLoader.LoadProfile(new string[]{lastDownloadedProfile}, OnProfileLoaded);
     }
 
     private void OnProfileLoaded(bool success)

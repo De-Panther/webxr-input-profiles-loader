@@ -9,7 +9,7 @@ namespace WebXRInputProfile
 {
   public class InputProfileLoader : MonoBehaviour
   {
-    private const string DEFAULT_PROFILES_URL = "https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets/dist/profiles/{0}/{1}";
+    private const string DEFAULT_PROFILES_URL = "https://cdn.jsdelivr.net/npm/@webxr-input-profiles/assets/dist/profiles/";
 
     public enum Handedness
     {
@@ -21,29 +21,34 @@ namespace WebXRInputProfile
     // For cases where asked to download controllers separately
     private static Dictionary<string, Profile> downloadedProfiles = new Dictionary<string, Profile>();
     private static Dictionary<string, LayoutRouting[]> cachedLayoutRoutings = new Dictionary<string, LayoutRouting[]>();
+    private static Dictionary<string, string> profilesPaths;
+
+    public static Dictionary<string, string> ProfilesPaths
+    {
+      get
+      {
+        return profilesPaths;
+      }
+    }
 
     private string profilesUrl = DEFAULT_PROFILES_URL;
 
-    public void LoadProfile(string profileName, System.Action<bool> callback = null, string profilesUrl = null)
+    public void LoadProfilesList(System.Action<Dictionary<string, string>> callback = null, string profilesUrl = null)
     {
-      this.profilesUrl = !string.IsNullOrEmpty(profilesUrl) ? profilesUrl : DEFAULT_PROFILES_URL;
-      if (string.IsNullOrEmpty(profileName))
+      if (profilesPaths == null || profilesPaths.Count == 0 || (profilesUrl != null && profilesUrl != this.profilesUrl))
       {
-        Debug.LogError("No profile name");
-        callback?.Invoke(false);
-        return;
+        this.profilesUrl = !string.IsNullOrEmpty(profilesUrl) ? profilesUrl : DEFAULT_PROFILES_URL;
+        StartCoroutine(DownloadProfilesList(callback));
       }
-      if (downloadedProfiles.ContainsKey(profileName))
+      else
       {
-        callback?.Invoke(true);
-        return;
+        callback(profilesPaths);
       }
-      StartCoroutine(DownloadProfile(profileName, callback));
     }
 
-    IEnumerator DownloadProfile(string profileName, System.Action<bool> callback)
+    IEnumerator DownloadProfilesList(System.Action<Dictionary<string, string>> callback = null)
     {
-      using (UnityWebRequest webRequest = UnityWebRequest.Get(string.Format(profilesUrl, profileName, "profile.json")))
+      using (UnityWebRequest webRequest = UnityWebRequest.Get(profilesUrl + "profilesList.json"))
       {
         yield return webRequest.SendWebRequest();
         while (!webRequest.isDone)
@@ -53,7 +58,83 @@ namespace WebXRInputProfile
 
         if (!webRequest.isNetworkError && !webRequest.isHttpError)
         {
-          HandleProfileText(profileName, webRequest.downloadHandler.text, callback);
+          var profilesList = JsonConvert.DeserializeObject<Dictionary<string, ProfileInfo>>(webRequest.downloadHandler.text);
+          if (profilesList != null)
+          {
+            profilesPaths = new Dictionary<string, string>();
+            foreach (var keyValPair in profilesList)
+            {
+              profilesPaths.Add(keyValPair.Key, keyValPair.Value.path);
+            }
+          }
+        }
+        if (callback != null)
+        {
+          callback(profilesPaths);
+        }
+      }
+    }
+
+    public void LoadProfile(string[] profileNames, System.Action<bool> callback = null, string profilesUrl = null)
+    {
+      this.profilesUrl = !string.IsNullOrEmpty(profilesUrl) ? profilesUrl : DEFAULT_PROFILES_URL;
+      if (profileNames == null || profileNames.Length == 0)
+      {
+        Debug.LogError("No profile name");
+        callback?.Invoke(false);
+        return;
+      }
+      if (DownloadedProfileExist(profileNames))
+      {
+        callback?.Invoke(true);
+        return;
+      }
+      StartCoroutine(DownloadProfile(profileNames, callback));
+    }
+
+    IEnumerator DownloadProfile(string[] profileNames, System.Action<bool> callback)
+    {
+      if (profilesPaths == null)
+      {
+        yield return DownloadProfilesList();
+      }
+      string profilePath = string.Empty;
+      string profileName = string.Empty;
+      int profilesIndex = -1;
+      if (profilesPaths != null)
+      {
+        for (int i = 0; i<profileNames.Length; i++)
+        {
+          if (profilesPaths.ContainsKey(profileNames[i]))
+          {
+            profileName = profileNames[i];
+            profilePath = profilesPaths[profileName];
+            profilesIndex = i;
+            break;
+          }
+        }
+      }
+      if (profilesIndex == -1)
+      {
+        callback(false);
+        yield break;
+      }
+      string[] similarProfiles = new string[profilesIndex + 1];
+      for (int i = 0; i<similarProfiles.Length; i++)
+      {
+        similarProfiles[i] = profileNames[i];
+      }
+      using (UnityWebRequest webRequest = UnityWebRequest.Get(profilesUrl + profilePath))
+      {
+        yield return webRequest.SendWebRequest();
+        while (!webRequest.isDone)
+        {
+          yield return null;
+        }
+
+        if (!webRequest.isNetworkError && !webRequest.isHttpError)
+        {
+          HandleProfileText(similarProfiles, webRequest.downloadHandler.text, callback);
         }
         else if (callback != null)
         {
@@ -62,20 +143,41 @@ namespace WebXRInputProfile
       }
     }
 
-    private void HandleProfileText(string profileName, string profileText, System.Action<bool> callback)
+    private void HandleProfileText(string[] profileNames, string profileText, System.Action<bool> callback)
     {
-      if (downloadedProfiles.ContainsKey(profileName))
+      if (DownloadedProfileExist(profileNames))
       {
         callback?.Invoke(true);
         return;
       }
       var profile = JsonConvert.DeserializeObject<Profile>(profileText);
-      downloadedProfiles.Add(profileName ,profile);
-      SetLayoutRoutings(profileName ,profile);
+      var layoutRoutings = CreateLayoutRoutings(profile);
+      for (int i = 0; i<profileNames.Length; i++)
+      {
+        downloadedProfiles.Add(profileNames[i] ,profile);
+        cachedLayoutRoutings.Add(profileNames[i], layoutRoutings);
+      }
       callback?.Invoke(true);
     }
 
-    private void SetLayoutRoutings(string profileName, Profile profile)
+    private bool DownloadedProfileExist(string[] profileNames)
+    {
+      for (int i = 0; i<profileNames.Length; i++)
+      {
+        if (downloadedProfiles.ContainsKey(profileNames[i]))
+        {
+          for (int j = 0; j<i; j++)
+          {
+            downloadedProfiles.Add(profileNames[j], downloadedProfiles[profileNames[i]]);
+            cachedLayoutRoutings.Add(profileNames[j], cachedLayoutRoutings[profileNames[i]]);
+          }
+          return true;
+        }
+      }
+      return false;
+    }
+
+    private LayoutRouting[] CreateLayoutRoutings(Profile profile)
     {
       var layoutRoutings = new LayoutRouting[3];
       if (profile.layouts.left_right_none != null)
@@ -109,7 +211,7 @@ namespace WebXRInputProfile
         layoutRoutings[(int)Handedness.none] = GetLayoutRouting(profile.layouts.none);
       }
 
-      cachedLayoutRoutings.Add(profileName, layoutRoutings);
+      return layoutRoutings;
     }
 
     private LayoutRouting GetLayoutRouting(Layout layout)
@@ -153,7 +255,8 @@ namespace WebXRInputProfile
       }
       var modelObject = new GameObject(layoutRoutings[(int)handedness].rootNodeName);
       var inputProfileModel = modelObject.AddComponent<InputProfileModel>();
-      inputProfileModel.Init(layoutRoutings[(int)handedness], string.Format(profilesUrl, profileName, layoutRoutings[(int)handedness].assetPath), callback);
+      string assetPath = profilesUrl + downloadedProfiles[profileName].profileId + "/" + layoutRoutings[(int)handedness].assetPath;
+      inputProfileModel.Init(layoutRoutings[(int)handedness], assetPath, callback);
       return inputProfileModel;
     }
 
