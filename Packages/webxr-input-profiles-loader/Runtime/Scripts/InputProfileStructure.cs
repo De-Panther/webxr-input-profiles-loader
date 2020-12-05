@@ -98,4 +98,11 @@ namespace WebXRInputProfile
     public Transform minNode;
     public Transform maxNode;
   }
+
+  [Serializable]
+  public class ProfileInfo
+  {
+    public string path = string.Empty;
+    public bool deprecated = false;
+  }
 }
