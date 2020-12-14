@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using GLTFast;
 using Newtonsoft.Json;
 
 namespace WebXRInputProfile
@@ -75,9 +74,8 @@ namespace WebXRInputProfile
       }
     }
 
-    public void LoadProfile(string[] profileNames, System.Action<bool> callback = null, string profilesUrl = null)
+    public void LoadProfile(string[] profileNames, System.Action<bool> callback = null)
     {
-      this.profilesUrl = !string.IsNullOrEmpty(profilesUrl) ? profilesUrl : DEFAULT_PROFILES_URL;
       if (profileNames == null || profileNames.Length == 0)
       {
         Debug.LogError("No profile name");
