@@ -26,7 +26,9 @@ namespace WebXRInputProfile
       gltfAsset.loadOnStartup = false;
       gltfAsset.url = url;
       gltfAsset.onLoadComplete += OnGltfLoaded;
-      gltfAsset.Load(gltfAsset.url);
+      var deferAgent = gameObject.AddComponent<TimeBudgetDeferAgent>();
+      deferAgent.timeBudget = 0.001f;
+      gltfAsset.Load(gltfAsset.url, null, deferAgent);
     }
 
     private void OnGltfLoaded(GltfAssetBase assetBase, bool success)
