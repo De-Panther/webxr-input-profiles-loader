@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
-using GLTFast;
 using Newtonsoft.Json;
 
 namespace WebXRInputProfile
@@ -19,19 +18,19 @@ namespace WebXRInputProfile
     }
 
     // For cases where asked to download controllers separately
-    private static Dictionary<string, Profile> downloadedProfiles = new Dictionary<string, Profile>();
-    private static Dictionary<string, LayoutRouting[]> cachedLayoutRoutings = new Dictionary<string, LayoutRouting[]>();
-    private static Dictionary<string, string> profilesPaths;
+    private Dictionary<string, Profile> downloadedProfiles = new Dictionary<string, Profile>();
+    private Dictionary<string, LayoutRouting[]> cachedLayoutRoutings = new Dictionary<string, LayoutRouting[]>();
+    private Dictionary<string, string> profilesPaths = null;
 
-    public static Dictionary<string, string> ProfilesPaths
+    public Dictionary<string, string> GetProfilesPaths()
     {
-      get
-      {
-        return profilesPaths;
-      }
+      return profilesPaths;
     }
 
     private string profilesUrl = DEFAULT_PROFILES_URL;
+
+    UnityWebRequest profilesListWebRequest = null;
+    UnityWebRequest profileWebRequest = null;
 
     public void LoadProfilesList(System.Action<Dictionary<string, string>> callback = null, string profilesUrl = null)
     {
@@ -48,17 +47,21 @@ namespace WebXRInputProfile
 
     IEnumerator DownloadProfilesList(System.Action<Dictionary<string, string>> callback = null)
     {
-      using (UnityWebRequest webRequest = UnityWebRequest.Get(profilesUrl + "profilesList.json"))
+      if (profilesListWebRequest == null)
       {
-        yield return webRequest.SendWebRequest();
-        while (!webRequest.isDone)
-        {
-          yield return null;
-        }
+        profilesListWebRequest = UnityWebRequest.Get(profilesUrl + "profilesList.json");
+        yield return profilesListWebRequest.SendWebRequest();
+      }
+      while (profilesListWebRequest != null && !profilesListWebRequest.isDone)
+      {
+        yield return null;
+      }
 
-        if (!webRequest.isNetworkError && !webRequest.isHttpError)
+      if (profilesListWebRequest != null)
+      {
+        if (!profilesListWebRequest.isNetworkError && !profilesListWebRequest.isHttpError)
         {
-          var profilesList = JsonConvert.DeserializeObject<Dictionary<string, ProfileInfo>>(webRequest.downloadHandler.text);
+          var profilesList = JsonConvert.DeserializeObject<Dictionary<string, ProfileInfo>>(profilesListWebRequest.downloadHandler.text);
           if (profilesList != null)
           {
             profilesPaths = new Dictionary<string, string>();
@@ -68,16 +71,18 @@ namespace WebXRInputProfile
             }
           }
         }
-        if (callback != null)
-        {
-          callback(profilesPaths);
-        }
+        profilesListWebRequest.Dispose();
+        profilesListWebRequest = null;
+      }
+
+      if (callback != null)
+      {
+        callback(profilesPaths);
       }
     }
 
-    public void LoadProfile(string[] profileNames, System.Action<bool> callback = null, string profilesUrl = null)
+    public void LoadProfile(string[] profileNames, System.Action<bool> callback = null)
     {
-      this.profilesUrl = !string.IsNullOrEmpty(profilesUrl) ? profilesUrl : DEFAULT_PROFILES_URL;
       if (profileNames == null || profileNames.Length == 0)
       {
         Debug.LogError("No profile name");
@@ -103,7 +108,7 @@ namespace WebXRInputProfile
       int profilesIndex = -1;
       if (profilesPaths != null)
       {
-        for (int i = 0; i<profileNames.Length; i++)
+        for (int i = 0; i < profileNames.Length; i++)
         {
           if (profilesPaths.ContainsKey(profileNames[i]))
           {
@@ -119,27 +124,40 @@ namespace WebXRInputProfile
         callback(false);
         yield break;
       }
+      // if no path for profiles, group them together with the first profile that has path
       string[] similarProfiles = new string[profilesIndex + 1];
-      for (int i = 0; i<similarProfiles.Length; i++)
+      for (int i = 0; i < similarProfiles.Length; i++)
       {
         similarProfiles[i] = profileNames[i];
       }
-      using (UnityWebRequest webRequest = UnityWebRequest.Get(profilesUrl + profilePath))
-      {
-        yield return webRequest.SendWebRequest();
-        while (!webRequest.isDone)
-        {
-          yield return null;
-        }
 
-        if (!webRequest.isNetworkError && !webRequest.isHttpError)
+      if (profileWebRequest == null)
+      {
+        profileWebRequest = UnityWebRequest.Get(profilesUrl + profilePath);
+        yield return profileWebRequest.SendWebRequest();
+      }
+
+      while (profileWebRequest != null && !profileWebRequest.isDone)
+      {
+        yield return null;
+      }
+
+      if (profileWebRequest != null)
+      {
+        if (!profileWebRequest.isNetworkError && !profileWebRequest.isHttpError)
         {
-          HandleProfileText(similarProfiles, webRequest.downloadHandler.text, callback);
+          HandleProfileText(similarProfiles, profileWebRequest.downloadHandler.text, callback);
         }
         else if (callback != null)
         {
           callback(false);
         }
+        profileWebRequest.Dispose();
+        profileWebRequest = null;
+      }
+      else
+      {
+        callback?.Invoke(DownloadedProfileExist(similarProfiles));
       }
     }
 
@@ -152,9 +170,9 @@ namespace WebXRInputProfile
       }
       var profile = JsonConvert.DeserializeObject<Profile>(profileText);
       var layoutRoutings = CreateLayoutRoutings(profile);
-      for (int i = 0; i<profileNames.Length; i++)
+      for (int i = 0; i < profileNames.Length; i++)
       {
-        downloadedProfiles.Add(profileNames[i] ,profile);
+        downloadedProfiles.Add(profileNames[i], profile);
         cachedLayoutRoutings.Add(profileNames[i], layoutRoutings);
       }
       callback?.Invoke(true);
@@ -162,11 +180,11 @@ namespace WebXRInputProfile
 
     private bool DownloadedProfileExist(string[] profileNames)
     {
-      for (int i = 0; i<profileNames.Length; i++)
+      for (int i = 0; i < profileNames.Length; i++)
       {
         if (downloadedProfiles.ContainsKey(profileNames[i]))
         {
-          for (int j = 0; j<i; j++)
+          for (int j = 0; j < i; j++)
           {
             downloadedProfiles.Add(profileNames[j], downloadedProfiles[profileNames[i]]);
             cachedLayoutRoutings.Add(profileNames[j], cachedLayoutRoutings[profileNames[i]]);
@@ -182,7 +200,7 @@ namespace WebXRInputProfile
       var layoutRoutings = new LayoutRouting[3];
       if (profile.layouts.left_right_none != null)
       {
-        var layoutRouting = GetLayoutRouting(profile.layouts.left_right_none);;
+        var layoutRouting = GetLayoutRouting(profile.layouts.left_right_none); ;
         layoutRoutings[(int)Handedness.none] = layoutRouting;
         layoutRoutings[(int)Handedness.left] = layoutRouting;
         layoutRoutings[(int)Handedness.right] = layoutRouting;
@@ -190,7 +208,7 @@ namespace WebXRInputProfile
       }
       else if (profile.layouts.left_right != null)
       {
-        var layoutRouting = GetLayoutRouting(profile.layouts.left_right);;
+        var layoutRouting = GetLayoutRouting(profile.layouts.left_right); ;
         layoutRoutings[(int)Handedness.left] = layoutRouting;
         layoutRoutings[(int)Handedness.right] = layoutRouting;
       }

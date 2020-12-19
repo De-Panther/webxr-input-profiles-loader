@@ -22,25 +22,26 @@ namespace WebXRInputProfile.Viewer
     void Start()
     {
       profileNameDropdown.ClearOptions();
-      if (InputProfileLoader.ProfilesPaths == null || InputProfileLoader.ProfilesPaths.Count == 0)
+      var profilesPaths = inputProfileLoader.GetProfilesPaths();
+      if (profilesPaths == null || profilesPaths.Count == 0)
       {
 
         inputProfileLoader.LoadProfilesList(HandleProfilesList);
       }
       else
       {
-        HandleProfilesList(InputProfileLoader.ProfilesPaths);
+        HandleProfilesList(profilesPaths);
       }
     }
 
-    void HandleProfilesList(Dictionary<string,string> profilesList)
+    void HandleProfilesList(Dictionary<string,string> profilesPaths)
     {
-      if (profilesList == null || profilesList.Count == 0)
+      if (profilesPaths == null || profilesPaths.Count == 0)
       {
         return;
       }
       List<string> profileNames = new List<string>();
-      foreach (var keyValPair in profilesList)
+      foreach (var keyValPair in profilesPaths)
       {
         profileNames.Add(keyValPair.Key);
       }
