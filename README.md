@@ -15,3 +15,7 @@ You can get the package from [![openupm](https://img.shields.io/npm/v/com.de-pan
 ## Troubleshooting
 
 You might need to add Shader Variants of the Input Profiles Models to the build for the shaders to work. More info about that can be found at the glTFast docs.
+
+## Supported WebXR Exporters
+
+- [WebXR Export](https://github.com/De-Panther/unity-webxr-export).
