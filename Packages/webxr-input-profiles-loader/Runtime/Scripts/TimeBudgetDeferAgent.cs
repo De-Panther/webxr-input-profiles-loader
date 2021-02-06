@@ -7,7 +7,7 @@ namespace WebXRInputProfile
   [DefaultExecutionOrder(-10)]
   public class TimeBudgetDeferAgent : MonoBehaviour, IDeferAgent
   {
-    public float timeBudget = 0.001f;
+    public float timeBudget = 0.009f;
     float lastTime;
 
     void Awake()
