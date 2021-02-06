@@ -1,8 +1,10 @@
 ﻿using GLTFast;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace WebXRInputProfile
 {
+  [DefaultExecutionOrder(-10)]
   public class TimeBudgetDeferAgent : MonoBehaviour, IDeferAgent
   {
     public float timeBudget = 0.001f;
@@ -25,13 +27,33 @@ namespace WebXRInputProfile
 
     public bool ShouldDefer()
     {
-      float now = Time.realtimeSinceStartup;
-      if (now - lastTime > timeBudget)
+      return !FitsInCurrentFrame(0);
+    }
+
+    public bool ShouldDefer(float duration)
+    {
+      return !FitsInCurrentFrame(duration);
+    }
+
+    bool FitsInCurrentFrame(float duration)
+    {
+      return duration <= timeBudget - (Time.realtimeSinceStartup - lastTime);
+    }
+
+    public async Task BreakPoint()
+    {
+      if (ShouldDefer())
       {
-        lastTime = now;
-        return true;
+        await Task.Yield();
       }
-      return false;
+    }
+
+    public async Task BreakPoint(float duration)
+    {
+      if (ShouldDefer(duration))
+      {
+        await Task.Yield();
+      }
     }
   }
 }

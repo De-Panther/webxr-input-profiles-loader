@@ -15,7 +15,7 @@ namespace WebXRInputProfile
 
     private GltfAsset gltfAsset;
 
-    public void Init(LayoutRouting layoutRouting, string url, System.Action<bool> callback = null)
+    public async void Init(LayoutRouting layoutRouting, string url, System.Action<bool> callback = null)
     {
       this.layoutRouting = layoutRouting;
       onLoadCallback = callback;
@@ -25,15 +25,14 @@ namespace WebXRInputProfile
       }
       gltfAsset.loadOnStartup = false;
       gltfAsset.url = url;
-      gltfAsset.onLoadComplete += OnGltfLoaded;
       var deferAgent = gameObject.AddComponent<TimeBudgetDeferAgent>();
       deferAgent.timeBudget = 0.001f;
-      gltfAsset.Load(gltfAsset.url, null, deferAgent);
+      var loadResult = await gltfAsset.Load(gltfAsset.url, null, deferAgent);
+      OnGltfLoaded(loadResult);
     }
 
-    private void OnGltfLoaded(GltfAssetBase assetBase, bool success)
+    private void OnGltfLoaded(bool success)
     {
-      gltfAsset.onLoadComplete -= OnGltfLoaded;
       if (!success)
       {
         onLoadCallback?.Invoke(false);
