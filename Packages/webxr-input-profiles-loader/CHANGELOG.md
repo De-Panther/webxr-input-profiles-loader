@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2020-02-07
+### Fixed
+- More issues with loading models.
+
 ## [0.3.3] - 2020-02-06
 ### Fixed
 - Issues with loading models.
