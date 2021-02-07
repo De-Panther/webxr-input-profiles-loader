@@ -2,11 +2,11 @@
 
 WebXR Input Profiles Loader in Unity. Based on [WebXR Input Profiles](https://immersive-web.github.io/webxr-input-profiles/).
 
+You can [try the demo here](https://de-panther.github.io/webxr-input-profiles-loader/).
+
 The package is intended to be used with WebXR exporters in general, and not only with [WebXR Export](https://github.com/De-Panther/unity-webxr-export).
 
 The package uses [glTFast](https://github.com/atteneder/glTFast) to load the models, and Unity's package of [Newtonsoft Json.NET](https://docs.unity3d.com/Packages/com.unity.nuget.newtonsoft-json@latest) to parse the profiles.
-
-You can try the demo [here](https://de-panther.github.io/webxr-input-profiles-loader/).
 
 ## Downloads
 
