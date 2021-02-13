@@ -4,16 +4,11 @@ using UnityEngine;
 
 namespace WebXRInputProfile
 {
-  [DefaultExecutionOrder(-10)]
-  public class TimeBudgetDeferAgent : MonoBehaviour, IDeferAgent
+  public class WebGLDeferAgent : MonoBehaviour, IDeferAgent
   {
-    float lastTime;
-
-    private int shouldDeferCount = 0;
-
     public bool ShouldDefer()
     {
-      return true;
+      return false;
     }
 
     public bool ShouldDefer(float duration)

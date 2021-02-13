@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2020-02-13
+### Fixed
+- Warning in DeferAgent file.
+
+### Changed
+- Updated glTFast package to 3.0.2.
+- TimeBudgetDeferAgent to WebGLDeferAgent.
+- Sample scene lighting settings.
+
 ## [0.3.4] - 2020-02-07
 ### Fixed
 - More issues with loading models.
