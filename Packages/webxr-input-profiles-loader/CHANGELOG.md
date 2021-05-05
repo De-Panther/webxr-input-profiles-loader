@@ -6,7 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.5] - 2020-02-13
+## [0.3.6] - 2021-05-06
+### Added
+- GetChildTransform to InputProfileModel for WebXR Hands API support.
+
+### Changed
+- Updated glTFast package to 3.2.1.
+
+## [0.3.5] - 2021-02-13
 ### Fixed
 - Warning in DeferAgent file.
 
@@ -15,15 +22,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TimeBudgetDeferAgent to WebGLDeferAgent.
 - Sample scene lighting settings.
 
-## [0.3.4] - 2020-02-07
+## [0.3.4] - 2021-02-07
 ### Fixed
 - More issues with loading models.
 
-## [0.3.3] - 2020-02-06
+## [0.3.3] - 2021-02-06
 ### Fixed
 - Issues with loading models.
 
-## [0.3.2] - 2020-02-06
+## [0.3.2] - 2021-02-06
 ### Changed
 - Updated glTFast package to 3.0.1.
 

@@ -15,9 +15,12 @@ namespace WebXRInputProfile
 
     private GltfAsset gltfAsset;
 
+    private Transform _transform;
+
     public async void Init(LayoutRouting layoutRouting, string url, System.Action<bool> callback = null)
     {
       this.layoutRouting = layoutRouting;
+      _transform = transform;
       onLoadCallback = callback;
       if (gltfAsset == null)
       {
@@ -37,7 +40,6 @@ namespace WebXRInputProfile
         onLoadCallback?.Invoke(false);
         return;
       }
-      var _transform = transform;
       if (layoutRouting != null)
       {
         layoutTransforms = new LayoutTransforms();
@@ -87,15 +89,20 @@ namespace WebXRInputProfile
       {
         return result;
       }
-      foreach (Transform _transform in parent)
+      foreach (Transform child in parent)
       {
-        result = TransformFindRecursive(_transform, value);
+        result = TransformFindRecursive(child, value);
         if (result != null)
         {
           break;
         }
       }
       return result;
+    }
+
+    public Transform GetChildTransform(string transformName)
+    {
+      return TransformFindRecursive(_transform, transformName);
     }
 
     public bool SetButtonValue(int index, float value)
