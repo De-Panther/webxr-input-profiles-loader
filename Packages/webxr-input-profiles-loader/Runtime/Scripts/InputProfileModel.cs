@@ -40,6 +40,7 @@ namespace WebXRInputProfile
         onLoadCallback?.Invoke(false);
         return;
       }
+      _transform.GetChild(0).Rotate(new Vector3(0, 180, 0), Space.Self);
       if (layoutRouting != null)
       {
         layoutTransforms = new LayoutTransforms();
