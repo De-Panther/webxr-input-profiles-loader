@@ -26,10 +26,10 @@ namespace WebXRInputProfile
       {
         gltfAsset = gameObject.AddComponent<GLTFast.GltfAsset>();
       }
-      gltfAsset.loadOnStartup = false;
-      gltfAsset.url = url;
+      gltfAsset.LoadOnStartup = false;
+      gltfAsset.Url = url;
       var deferAgent = gameObject.AddComponent<WebGLDeferAgent>();
-      var loadResult = await gltfAsset.Load(gltfAsset.url, null, deferAgent);
+      var loadResult = await gltfAsset.Load(gltfAsset.Url, null, deferAgent);
       OnGltfLoaded(loadResult);
     }
 
