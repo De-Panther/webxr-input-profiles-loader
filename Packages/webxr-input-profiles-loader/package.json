@@ -23,7 +23,7 @@
   ],
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "2.0.0",
-    "com.atteneder.gltfast": "4.4.8"
+    "com.unity.cloud.gltfast": "5.2.0"
   },
   "unityRelease": "33f1"
 }

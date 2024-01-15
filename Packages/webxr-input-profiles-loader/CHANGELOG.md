@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Use glTFast package from Unity registry.
+- Updated glTFast package to 5.2.0.
+
 ## [0.5.0] - 2024-01-11
 ### Changed
 - Updated glTFast package to 5.1.0.
