@@ -6,7 +6,7 @@ You can [try the demo here](https://de-panther.github.io/webxr-input-profiles-lo
 
 The package is intended to be used with WebXR exporters in general, and not only with [WebXR Export](https://github.com/De-Panther/unity-webxr-export).
 
-The package uses [glTFast](https://github.com/atteneder/glTFast) to load the models, and Unity's package of [Newtonsoft Json.NET](https://docs.unity3d.com/Packages/com.unity.nuget.newtonsoft-json@latest) to parse the profiles.
+The package uses [glTFast](https://docs.unity3d.com/Packages/com.unity.cloud.gltfast@latest) to load the models, and Unity's package of [Newtonsoft Json.NET](https://docs.unity3d.com/Packages/com.unity.nuget.newtonsoft-json@latest) to parse the profiles.
 
 ## Downloads
 
@@ -20,7 +20,6 @@ Set a `Scoped Registry` in `Project Settings > Package Manager` for OpenUPM.
 Name: OpenUPM
 URL: https://package.openupm.com
 Scope(s): com.de-panther
-          com.atteneder
 ```
 
 Then in `Window > Package Manager` selecting `Packages: My Registries` and the WebXR Input Profiles Loader package would be available for install.
