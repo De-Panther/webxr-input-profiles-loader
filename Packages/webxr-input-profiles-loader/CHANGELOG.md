@@ -6,11 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2024-01-17
 ### Added
-- GLTFShaderVariantsURP and GLTFShaderVariantsLegacyURP to the ShaderVariants folder.
+- glTFShaderVariantsURP and glTFShaderVariantsLegacyURP to the ShaderVariants folder.
 
 ### Changed
-- Renamed GLTFShaderVariants to GLTFShaderVariantsBuiltInRP.
+- Renamed GLTFShaderVariants to glTFShaderVariantsBuiltInRP.
 
 ## [0.6.0] - 2024-01-15
 ### Changed
