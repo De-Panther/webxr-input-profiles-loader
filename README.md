@@ -28,6 +28,8 @@ Then in `Window > Package Manager` selecting `Packages: My Registries` and the W
 
 You might need to add Shader Variants of the Input Profiles Models to the build for the shaders to work. More info about that can be found at the glTFast docs.
 
+You can use `glTFShaderVariantsURP`, `glTFShaderVariantsLegacyURP` or `glTFShaderVariantsBuiltInRP` in `Project Settings > Graphics > Preloaded Shaders` depending on the active render pipeline.
+
 ## Supported WebXR Exporters
 
 - [WebXR Export](https://github.com/De-Panther/unity-webxr-export).

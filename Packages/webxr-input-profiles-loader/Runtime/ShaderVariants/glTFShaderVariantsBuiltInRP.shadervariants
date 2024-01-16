@@ -6,7 +6,7 @@ ShaderVariantCollection:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GLTFShaderVariants
+  m_Name: glTFShaderVariantsBuiltInRP
   m_Shaders:
   - first: {fileID: 4800000, guid: 99fa998bbbed3408aafa652b466d261d, type: 3}
     second:

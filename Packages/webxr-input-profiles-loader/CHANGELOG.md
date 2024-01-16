@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- GLTFShaderVariantsURP and GLTFShaderVariantsLegacyURP to the ShaderVariants folder.
+
+### Changed
+- Renamed GLTFShaderVariants to GLTFShaderVariantsBuiltInRP.
+
 ## [0.6.0] - 2024-01-15
 ### Changed
 - Use glTFast package from Unity registry.

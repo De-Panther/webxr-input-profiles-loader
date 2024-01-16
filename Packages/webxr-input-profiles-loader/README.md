@@ -8,6 +8,8 @@ The package uses [glTFast](https://docs.unity3d.com/Packages/com.unity.cloud.glt
 
 You might need to add Shader Variants of the Input Profiles Models to the build for the shaders to work. More info about that can be found at the glTFast docs.
 
+You can use `glTFShaderVariantsURP`, `glTFShaderVariantsLegacyURP` or `glTFShaderVariantsBuiltInRP` in `Project Settings > Graphics > Preloaded Shaders` depending on the active render pipeline.
+
 ## Setting package using OpenUPM
 
 Set a `Scoped Registry` in `Project Settings > Package Manager` for OpenUPM.
