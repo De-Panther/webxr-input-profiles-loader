@@ -14,21 +14,31 @@ namespace WebXRInputProfile
     private LayoutTransforms layoutTransforms;
 
     private GltfAsset gltfAsset;
+    private WebGLDeferAgent deferAgent;
 
-    private Transform _transform;
+    private GameObject gltfChild;
+    private Transform gltfTransform;
 
     public async void Init(LayoutRouting layoutRouting, string url, System.Action<bool> callback = null)
     {
       this.layoutRouting = layoutRouting;
-      _transform = transform;
       onLoadCallback = callback;
-      if (gltfAsset == null)
+      if (gltfChild == null)
       {
-        gltfAsset = gameObject.AddComponent<GLTFast.GltfAsset>();
+#if UNITY_EDITOR
+        gltfChild = new GameObject("gltfChild");
+#else
+        gltfChild = new GameObject();
+#endif
+        gltfAsset = gltfChild.AddComponent<GltfAsset>();
+        deferAgent = gltfChild.AddComponent<WebGLDeferAgent>();
+        gltfTransform = gltfChild.transform;
+        gltfTransform.parent = transform;
+        gltfTransform.localPosition = Vector3.zero;
+        gltfTransform.localEulerAngles = new Vector3(0, 180, 0);
       }
       gltfAsset.LoadOnStartup = false;
       gltfAsset.Url = url;
-      var deferAgent = gameObject.AddComponent<WebGLDeferAgent>();
       var loadResult = await gltfAsset.Load(gltfAsset.Url, null, deferAgent);
       OnGltfLoaded(loadResult);
     }
@@ -40,7 +50,6 @@ namespace WebXRInputProfile
         onLoadCallback?.Invoke(false);
         return;
       }
-      _transform.GetChild(0).Rotate(new Vector3(0, 180, 0), Space.Self);
       if (layoutRouting != null)
       {
         layoutTransforms = new LayoutTransforms();
@@ -49,9 +58,9 @@ namespace WebXRInputProfile
           if (layoutRouting.buttons[i] != null)
           {
             layoutTransforms.buttons[i] = new LayoutTransform();
-            layoutTransforms.buttons[i].valueNode = TransformFindRecursive(_transform, layoutRouting.buttons[i].valueNodeName);
-            layoutTransforms.buttons[i].minNode = TransformFindRecursive(_transform, layoutRouting.buttons[i].minNodeName);
-            layoutTransforms.buttons[i].maxNode = TransformFindRecursive(_transform, layoutRouting.buttons[i].maxNodeName);
+            layoutTransforms.buttons[i].valueNode = TransformFindRecursive(gltfTransform, layoutRouting.buttons[i].valueNodeName);
+            layoutTransforms.buttons[i].minNode = TransformFindRecursive(gltfTransform, layoutRouting.buttons[i].minNodeName);
+            layoutTransforms.buttons[i].maxNode = TransformFindRecursive(gltfTransform, layoutRouting.buttons[i].maxNodeName);
             SetButtonValue(i, buttons[i]);
           }
         }
@@ -60,17 +69,17 @@ namespace WebXRInputProfile
           if (layoutRouting.axes[i] != null)
           {
             layoutTransforms.axes[i] = new LayoutTransform();
-            layoutTransforms.axes[i].valueNode = TransformFindRecursive(_transform, layoutRouting.axes[i].valueNodeName);
+            layoutTransforms.axes[i].valueNode = TransformFindRecursive(gltfTransform, layoutRouting.axes[i].valueNodeName);
             // In WebXR, yAxis is inverted. Not sure if here's the place to switch
             if (layoutRouting.axes[i].componentProperty == ComponentPropertyTypes.yAxis)
             {
-              layoutTransforms.axes[i].minNode = TransformFindRecursive(_transform, layoutRouting.axes[i].maxNodeName);
-              layoutTransforms.axes[i].maxNode = TransformFindRecursive(_transform, layoutRouting.axes[i].minNodeName);
+              layoutTransforms.axes[i].minNode = TransformFindRecursive(gltfTransform, layoutRouting.axes[i].maxNodeName);
+              layoutTransforms.axes[i].maxNode = TransformFindRecursive(gltfTransform, layoutRouting.axes[i].minNodeName);
             }
             else
             {
-              layoutTransforms.axes[i].minNode = TransformFindRecursive(_transform, layoutRouting.axes[i].minNodeName);
-              layoutTransforms.axes[i].maxNode = TransformFindRecursive(_transform, layoutRouting.axes[i].maxNodeName);
+              layoutTransforms.axes[i].minNode = TransformFindRecursive(gltfTransform, layoutRouting.axes[i].minNodeName);
+              layoutTransforms.axes[i].maxNode = TransformFindRecursive(gltfTransform, layoutRouting.axes[i].maxNodeName);
             }
             SetAxisValue(i, Mathf.Lerp(-1f, 1f, axes[i]));
           }
@@ -103,7 +112,7 @@ namespace WebXRInputProfile
 
     public Transform GetChildTransform(string transformName)
     {
-      return TransformFindRecursive(_transform, transformName);
+      return TransformFindRecursive(gltfTransform, transformName);
     }
 
     public bool SetButtonValue(int index, float value)
