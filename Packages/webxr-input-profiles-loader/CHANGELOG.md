@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Pose error after latest glTFast updates.
+
 ## [0.6.1] - 2024-01-17
 ### Added
 - glTFShaderVariantsURP and glTFShaderVariantsLegacyURP to the ShaderVariants folder.

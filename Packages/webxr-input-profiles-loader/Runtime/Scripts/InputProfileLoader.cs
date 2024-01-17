@@ -271,7 +271,11 @@ namespace WebXRInputProfile
         Debug.LogError("No model for hand");
         return null;
       }
+#if UNITY_EDITOR
       var modelObject = new GameObject(layoutRoutings[(int)handedness].rootNodeName);
+#else
+      var modelObject = new GameObject();
+#endif
       var inputProfileModel = modelObject.AddComponent<InputProfileModel>();
       string assetPath = profilesUrl + downloadedProfiles[profileName].profileId + "/" + layoutRoutings[(int)handedness].assetPath;
       inputProfileModel.Init(layoutRoutings[(int)handedness], assetPath, callback);
