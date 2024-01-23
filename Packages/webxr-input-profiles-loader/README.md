@@ -1,6 +1,6 @@
 # WebXR Input Profiles Loader
 
-WebXR Input Profiles Loader in Unity. Based on [WebXR Input Profiles](https://immersive-web.github.io/webxr-input-profiles/)
+WebXR Input Profiles Loader in Unity. Based on [WebXR Input Profiles](https://github.com/immersive-web/webxr-input-profiles)
 
 The package is intended to be used with WebXR exporters in general, and not only with [WebXR Export](https://github.com/De-Panther/unity-webxr-export)
 
