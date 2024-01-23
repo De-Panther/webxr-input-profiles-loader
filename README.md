@@ -1,6 +1,6 @@
 # WebXR Input Profiles Loader
 
-WebXR Input Profiles Loader in Unity. Based on [WebXR Input Profiles](https://immersive-web.github.io/webxr-input-profiles/).
+WebXR Input Profiles Loader in Unity. Based on [WebXR Input Profiles](https://github.com/immersive-web/webxr-input-profiles).
 
 You can [try the demo here](https://de-panther.github.io/webxr-input-profiles-loader/).
 
