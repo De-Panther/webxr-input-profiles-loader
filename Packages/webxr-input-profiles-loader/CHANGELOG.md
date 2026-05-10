@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-05-10
+### Changed
+- Signed package.
+
 ## [0.6.2] - 2024-01-17
 ### Fixed
 - Pose error after latest glTFast updates.
